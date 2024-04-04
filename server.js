@@ -7,7 +7,7 @@ Description: Web API scaffolding for Movie API
 var express = require('express');
 var bodyParser = require('body-parser');
 var passport = require('passport');
-var authController = require('./auth');
+const crypto = require("crypto");
 var authJwtController = require('./auth_jwt');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
@@ -112,6 +112,121 @@ router.post('/signin', function (req, res) {
         })
     })
 });
+//movies
+router.route('/movies')
+    //get all movies
+    .get((req, res) => {
+        Movie.find({title: {$exists: true}})
+        .then(movies => {
+            res.status(200).json(movies);
+        })
+        .catch (error => {
+            console.error('There was an error finding movies: ', error);
+            res.status(500).json({error: 'An error occurred while finding movies'});
+        })
+    })
+    //save a movie
+    .post(authJwtController.isAuthenticated,(req,res) =>{
+        Movie.find({title: req.body.title}).exec(function(err, found) {
+            const {movieId, title, relesaseDate, genre, actors } = res.body;
+
+            if (!title) {
+                return res.status(404).json({error: 'Please include a title to save new movie'});
+            }
+
+            const newMovie= new Movie ({movieId, title, relesaseDate, genre, actors});
+
+            newMovie.save()
+                .then(savedMovie => {
+                    res.status(200).json(savedMovie);
+                });
+        });
+    })
+
+
+    //find a movie-including option to find movie based on reviews
+    .get('/movies/:id', authJwtController.isAuthenticated, (req, res) =>{
+        const movieId = req.params.id;
+
+        const includeReviews = req.query.reviews == true;
+        console.log('Movie ID: ', movieId);
+
+        if(includeReviews){
+            Movie.aggregate([
+                {$match: {_id: mongoose.Types.ObjectId(movieId)}},
+                //{$match: {_id: mongoose.Types.ObjectId(movieId)}},
+                {$lookup: {
+                    from: "reviews",
+                    localField: "_id",
+                    foreignField: "movieId",
+                    as: "reviews"
+                }}
+            ]).exec(function (err, result){
+                if(err){
+                    return res.status(404).json({error: "Could not find that movie"});
+                }
+                else{
+                    res.status(200).json(result);
+                }
+            });
+        }
+        else {
+            Movie.findById(movieId)
+                .then (movie =>{
+                    if (!movie){
+                        return res.status(404).json({error: "Could not find that movie"});
+                    }
+                    res.status(200).json(movie);
+                })
+                .catch(error =>{
+                    console.error("Error finding movie:",error);
+                    res.status(404).json({error: "Could not find that movie"});
+                });
+        }
+    })
+
+    //update a movie
+    .put('/movies/:title', authJwtController.isAuthenticated, (req, res) =>{
+        const {title} = req.params;
+        const {releaseDate, genre, actors } = req.body;
+
+        if (!title){
+            return res.status(400).json({error: "You must enter a title to be updated"});
+        }
+
+        Movie.updateOne({title: {$regex:title}}, {$set: {'title': title}}).exec(function(err, set) {
+            if ( err)
+                console.error("An error occurred, update unsuccessful");
+            if (removeEventListener.n ==1)
+                res.json({success: true});
+            else  
+                res.json({success: false});
+        })
+    })
+
+    //delete a movie
+    .delete(authJwtController.isAuthenticated, (req, res) =>{
+        title= req.params.title;
+        if (!title){
+            return res.status(400).json({error: "You must enter a title to be deleted"});
+        }
+
+        Movie.deleteOne({title: title}).exec(function(err, rem){
+            if(err)
+                console.error("An error has occurred, unable to delete movie");
+            if (rem.n == 1)
+                res.json({success: true});
+            else    
+                res.json({success: false});
+        })
+    })
+
+    //catch any other request
+    .all((req, res) => {
+        res.status(405).send({message: "That request method is not currently supported"});
+    })
+
+
 //REVIEW ROUTES
 
 //post route to add a review
