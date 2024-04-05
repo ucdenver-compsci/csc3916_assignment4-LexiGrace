@@ -1,0 +1,95 @@
+[{
+    "title": "Inception",
+    "releaseDate": "2010-01-01T00:00:00.000Z",
+    "genre": "Science Fiction",
+    "actors": [
+  {
+    "actorName": "Leonardo DiCaprio ",
+    "characterName": "Cobb"
+  },
+  {
+    "actorName": "Joseph Gordon-Levitt ",
+    "characterName": "Arthur"
+  },
+  {
+    "actorName": "Ellen Page",
+    "characterName": "Ariadne"
+  }
+]},
+{
+    "title":"The Dark Night",
+    "releaseDate":"2008-18-06T00:00:00.000Z",
+    "genre":"Drama",
+    "actors":[
+        {
+        "actorName":"Christian Bale",
+        "characterName":"Bruce Wayne/ Batman"
+        },
+        {
+            "actorName":"Heath Ledger",
+            "characterName":"Joker"
+        },
+        {
+            "actorName":"Aaron Eckhart",
+            "characterName":"Harvey Dent/ Two-Face"
+        }
+]
+},
+{
+    "title":"Avatar",
+    "releaseDate":"2009-18-12T00:00:00.000Z",
+    "genre":"Science Fiction",
+    "actors":[
+        {
+        "actorName":"Sam Worthington",
+        "characterName":"Jake Sully"
+        },
+        {
+            "actorName":"Zoe Saldana",
+            "characterName":"Neytiri"
+        },
+        {
+            "actorName":"Sigourney Weaver",
+            "characterName":"Dr. Grace Augustine"
+        }
+]
+},
+{
+    "title": "Alice in Wonderland",
+    "releaseDate": "2010-01-01T00:00:00.000Z",
+    "genre": "Fantasy",
+    "actors": [
+      {
+        "actorName": "Mia Wasikowska",
+        "characterName": "Alice Kingsleigh"
+      },
+      {
+        "actorName": "Johnny Depp",
+        "characterName": "Mad Hatter"
+      },
+      {
+        "actorName": "Helena Bonham Carter",
+        "characterName": "Red Queen"
+      }
+    ]
+  },
+  {
+    "title":"Interstellar",
+    "releaseDate":"2014-07-11T00:00:00.000Z",
+    "genre":"Science Fiction",
+    "actors":[
+        {
+        "actorName":"Matthew McConaughey",
+        "characterName":"Cooper"
+        },
+        {
+            "actorName":"Anne Hathaway",
+            "characterName":"Brand"
+        },
+        {
+            "actorName":"Jessica Chastain",
+            "characterName":"Murph (Adult)"
+        }
+]
+}
+]

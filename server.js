@@ -158,13 +158,22 @@ router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) =>{
                     localField: "_id",
                     foreignField: "movieId",
                     as: "reviews"
-            }}
+            }},
+            {
+                $addFields: {
+                  avgRating: { $avg: '$movieReviews.rating' }
+                }
+              },
+              {
+                $sort: { avgRating: -1 }
+              }
+            
         ]).exec(function (err, result){
             if(err){
                 return res.status(404).json({error: "Could not find that movie"});
             }
             else{
-                res.status(200).json(result);
+                res.status(200).json(result[0]);
             }
         });
     }
