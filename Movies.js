@@ -22,7 +22,8 @@ var MovieSchema = new mongoose.Schema({
 }, 
   { collection : 'movies' });
   
-
+const Movie = mongoose.model('Model', MovieSchema);
 
 // return the model
 module.exports = mongoose.model('Movie', MovieSchema);
+module.exports = Movie;
