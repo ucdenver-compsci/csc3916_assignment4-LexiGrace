@@ -35,38 +35,38 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 
   const GA_TRACKING_ID = process.env.GA_KEY;
 
-  function trackDimension(category, action, label, value, dimension, metric) {
+//   function trackDimension(category, action, label, value, dimension, metric) {
   
-      var options = { method: 'GET',
-          url: 'https://www.google-analytics.com/collect',
-          qs:
-              {   // API Version.
-                  v: '1',
-                  // Tracking ID / Property ID.
-                  tid: GA_TRACKING_ID,
-                  // Random Client Identifier. Ideally, this should be a UUID that
-                  // is associated with particular user, device, or browser instance.
-                  cid: crypto.randomBytes(16).toString("hex"),
-                  // Event hit type.
-                  t: 'event',
-                  // Event category.
-                  ec: category,
-                  // Event action.
-                  ea: action,
-                  // Event label.
-                  el: label,
-                  // Event value.
-                  ev: value,
-                  // Custom Dimension
-                  cd1: dimension,
-                  // Custom Metric
-                  cm1: metric
-              },
-          headers:
-              {  'Cache-Control': 'no-cache' } };
+//       var options = { method: 'GET',
+//           url: 'https://www.google-analytics.com/collect',
+//           qs:
+//               {   // API Version.
+//                   v: '1',
+//                   // Tracking ID / Property ID.
+//                   tid: GA_TRACKING_ID,
+//                   // Random Client Identifier. Ideally, this should be a UUID that
+//                   // is associated with particular user, device, or browser instance.
+//                   cid: crypto.randomBytes(16).toString("hex"),
+//                   // Event hit type.
+//                   t: 'event',
+//                   // Event category.
+//                   ec: category,
+//                   // Event action.
+//                   ea: action,
+//                   // Event label.
+//                   el: label,
+//                   // Event value.
+//                   ev: value,
+//                   // Custom Dimension
+//                   cd1: dimension,
+//                   // Custom Metric
+//                   cm1: metric
+//               },
+//           headers:
+//               {  'Cache-Control': 'no-cache' } };
   
-      return rp(options);
-  }
+//       return rp(options);
+//   }
 
 
 router.post('/signup', function(req, res) {
@@ -105,7 +105,7 @@ router.post('/signin', function (req, res) {
             if (isMatch) {
                 var userToken = { id: user.id, username: user.username };
                 var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json ({success: true, token: 'JWT ' + token});
+                res.json ({success: true, token: 'JWT ' + token, user: userNew.username, password: userNew.password});
             }
             else {
                 res.status(401).send({success: false, msg: 'Authentication failed.'});
@@ -217,13 +217,15 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
         }
 
         Movie.findOneAndDelete({title: title})
-            .then(deletedMovie => {
-                if(!deletedMovie){
-                return res.status(404).json({error: 'Movie not found'});
+        .then (deletedMovie => { 
+            if(!deletedMovie){
+                return res.status(404).json({error: 'Sorry, that movie was not found'});
                 }     
+            else{
                 res.status(200).json({ message: "Movie successfully deleted"});
-            })
-            .catch(error => res.status(500).json({error: 'An error occurred, movie deletion unsuccessful'}));
+            }})
+        .catch (error => res.status(500).json({error: 'An error has unexpectedly occurred, movie not deleted'}));
+           
 });
 
     //catch any other request
@@ -236,60 +238,32 @@ router.all((req, res) => {
 
 //post route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
-    const { movieId, username, review, rating } = req.body;
+    const { title, username, review, rating } = req.body;
 
-    // Create a new review and save it to the database
-    const newReview = new Review({ movieId, username, review, rating });
-    newReview.save()
+    //create new review and save it to database
+    const newReview = new Review({ title, username, review, rating });
+    if (!title || !review || !rating) {
+        console.error("You must provide a title, the review, and the rating", error);}
+    else{
+        newReview.save()
         .then(savedReview => {
-            res.status(200).json({ message: 'Review created!', review: savedReview });
-            trackDimension('Feedback', 'Rating', 'Feedback for Movie', '3', 'Guardian\'s of the Galaxy 2', '1')
-            .then(function (response) {
-                console.log(response.body);
-            })
-        })
-        .catch(error => {
-            res.status(500).json({ error: 'An error occurred while saving the review' });
-        });
+            res.status(200).json({ message: 'Review successfully created', review: savedReview });
+            console.log(response.body);
+        })}
+        
 });
 
 //get route to get a review
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const includeReviews = req.query.reviews === 'true';
-
-    if (includeReviews) {
-        // Fetch reviews along with movie details
-        Review.aggregate([
-            {
-                $lookup: {
-                    from: 'movies', // name of the movies collection
-                    localField: 'movieId',
-                    foreignField: '_id',
-                    as: 'movieDetails' // output array where the joined movie details will be placed
-                }
-            },
-            {
-                $unwind: '$movieDetails' // unwind the movie array
-            }
-        ]).exec((err, aggregatedData) => {
-            if (err) {
-                console.error('Error aggregating reviews:', err);
-                res.status(500).json({ error: 'An error occurred while aggregating reviews' });
-            } else {
-                res.status(200).json(aggregatedData);
-            }
-        });
-    } else {
-        // Fetch all reviews
-        Review.find()
-            .then(reviews => {
-                res.status(200).json(reviews);
-            })
-            .catch(error => {
-                console.error('Error fetching reviews:', error);
-                res.status(500).json({ error: 'An error occurred while fetching reviews' });
-            });
-    }
+    Review.find()
+    .then(reviews => {
+        res.status(200).json(reviews);
+    })
+    .catch(error => {
+        console.error('Error fetching reviews:', error);
+        res.status(500).json({ error: 'An error occurred while fetching reviews' });
+    });
 });
 app.use('/', router);
 app.listen(process.env.PORT || 8080);

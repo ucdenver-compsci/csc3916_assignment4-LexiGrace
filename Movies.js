@@ -6,7 +6,7 @@ mongoose.connect(process.env.DB);
 // Movie schema
 var MovieSchema = new mongoose.Schema({
     title: { type: String, required: true, index: true },
-    releaseDate: Date, 
+    releaseDate: Number, 
     genre: {
       type: String,
       enum: [
