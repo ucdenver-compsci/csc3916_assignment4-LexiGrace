@@ -245,7 +245,6 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     newReview.save()
         .then(savedReview => {
             res.status(200).json({ message: 'Review created', review: savedReview });
-            console.log(response.body)
         })
         
 });
