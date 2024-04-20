@@ -228,6 +228,36 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
            
 });
 
+router.post('/movies/:id/reviews', authJwtController.isAuthenticated,(req,res) =>{
+    const movieId = req.params.id;
+    const {rating, review} = req.body;
+    const username = req.user.username;
+
+    const newReview = new Review ({movieId, username, rating, review});
+
+    newReview.save()
+        .then(savedReview => {
+            res.status(200).json({message: "Review created", review: savedReview});
+        })
+        .catch(error => {
+            console.error('Error creating the review', error);
+            res.status(500).json({error: "Unfortunately, an error occurred creating this review"})
+        });
+})
+
+router.get('/movies/:id/reviews',authJwtController.isAuthenticated,(req,res)=>{
+    const movieId = req.params.id;
+
+    Review.find({movieId})
+        .then(reviews => {
+            res.status(200).json(reviews);
+        })
+        .catch(error =>{
+            console.error('Error retrieving reviews: ',error);
+            res.stauts(500).json({error: 'Unfortunately, an error occurred while retrieving this review'});
+        })
+});
+
     //catch any other request
 router.all((req, res) => {
     res.status(405).send({message: "That request method is not currently supported"});
