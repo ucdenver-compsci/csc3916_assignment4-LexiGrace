@@ -9,9 +9,7 @@ var ReviewSchema = new mongoose.Schema({
     username: String,
     review: String,
     rating: {type: Number, min: 0, max: 5}
-},
-{collection:'ReviewSchema',
-   versionKey: false
 });
+
 // return the model
 module.exports = mongoose.model('Review', ReviewSchema);
