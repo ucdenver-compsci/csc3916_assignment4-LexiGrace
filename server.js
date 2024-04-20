@@ -251,14 +251,13 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
 
 //get route to get a review
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
-    const includeReviews = req.query.reviews === 'true';
     Review.find()
     .then(reviews => {
         res.status(200).json(reviews);
     })
     .catch(error => {
-        console.error('Error fetching reviews:', error);
-        res.status(500).json({ error: 'An error occurred while fetching reviews' });
+        console.error('Error while searching reviews:', error);
+        res.status(500).json({ error: 'An error occurred while searching for reviews' });
     });
 });
 app.use('/', router);
