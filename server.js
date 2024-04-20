@@ -238,18 +238,15 @@ router.all((req, res) => {
 
 //post route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
-    const { title, username, review, rating } = req.body;
+    const { movieId, username, review, rating } = req.body;
 
     //create new review and save it to database
-    const newReview = new Review({ title, username, review, rating });
-    if (!title || !review || !rating) {
-        console.error("You must provide a title, the review, and the rating", error);}
-    else{
-        newReview.save()
+    const newReview = new Review({ movieId, username, review, rating });
+    newReview.save()
         .then(savedReview => {
             res.status(200).json({ message: 'Review created', review: savedReview });
-            console.log(response.body);
-        })}
+            console.log(response.body)
+        })
         
 });
 
