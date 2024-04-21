@@ -3,8 +3,8 @@ var BasicStrategy = require('passport-http').BasicStrategy;
 
 passport.use(new BasicStrategy(
    function(username, password, done) {
-       var user = { name: "cu_user"}; //could have called to a database to look this up
-       if (username === user.name && password === "cu_rulez") // tripple equal is type and value; double == is just equal
+       var user = { name: "cu_user"}; 
+       if (username === user.name && password === "cu_rulez") 
        {
            return done(null, user);
        }
